@@ -1,0 +1,12 @@
+# Just add the next line to OpenWRT feeds.conf buildroot
+src-git wbm git://github.com/battlemesh/battlemesh-packages.git
+
+# Update and install scripts
+scripts/feeds update -a
+scripts/feeds install -a
+
+# Type menuconfig and select the wbm packages
+make menuconfig
+
+# Finally compile the source
+make -j4
