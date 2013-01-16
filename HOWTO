@@ -1,5 +1,5 @@
 # Just add the next line to OpenWRT feeds.conf buildroot
-src-git wbm git://github.com/battlemesh/battlemesh-packages.git
+echo "src-git wbm git://github.com/battlemesh/battlemesh-packages.git" >> feeds.conf
 
 # Update and install feeds
 scripts/feeds update -a
