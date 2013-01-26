@@ -6,11 +6,15 @@ config wbm network
 	option vlan_tag_start 10
 
 	# protocols available
-	option protos olsr bmx6 batadv babel
+	list protos olsr
+	list protos bmx6
+	list protos batadv
+	list protos babel
+	list protos o11s
 
 	# ipv4_net and ipv6_net are the networks that each node will use for its own.
 	# P = protocol identifier (0,1,2...)
 	# R1 = 8 bits random number, probably comming from MAC
 	# R2 = 8 bits random number, probably comming from MAC
 	option ipv4_net 10.P.R1.R2/16
-	option ipv6_net fdfe:0000:000P:R1R2::/64
+	option ipv6_net fd0P:R1R2:0000:0000::/64
