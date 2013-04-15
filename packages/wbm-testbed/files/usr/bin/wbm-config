@@ -75,8 +75,19 @@ function main()
 			return
 		end
 
-		printf("-> Using channel %d for %dGHz %s", ch, is_5ghz and 5 or 2, s[".name"])
-		x:set("wireless", s[".name"], "channel", ch)
+		local ht = ch:match("[-+]?$")
+
+		printf("-> Using channel %s for %dGHz %s", ch, is_5ghz and 5 or 2, s[".name"])
+		x:set("wireless", s[".name"], "channel", (ch:gsub("[-+]$", "")))
+
+		if x:get("wireless", s[".name"], "ht_capab") then
+			if ht == "+" or ht == "-" then
+				x:set("wireless", s[".name"], "htmode", "HT40"..ht)
+			else
+				x:set("wireless", s[".name"], "htmode", "HT20")
+			end
+		end
+
 		x:set("wireless", s[".name"], "disabled", 0)
 		x:set("wireless", id, "wifi-iface")
 		x:set("wireless", id, "device", s[".name"])
