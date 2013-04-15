@@ -10,10 +10,9 @@ config wbm network
 	list protos bmx6
 	list protos batadv
 	list protos babel
-	list protos o11s
 
 	# ipv4_net and ipv6_net are the networks that each node will use for its own.
-	# P = protocol identifier (0,1,2...)
+	# P = protocol identifier (0,1,2...) + 10 for interface
 	# R1 = 8 bits random number, probably comming from MAC
 	# R2 = 8 bits random number, probably comming from MAC
 	option ipv4_net 10.P.R1.R2/16
