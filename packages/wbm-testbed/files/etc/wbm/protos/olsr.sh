@@ -21,16 +21,8 @@ prepare() {
   touch /etc/config/olsrd
 
   uci -q add olsrd olsrd
-  uci set olsrd.@olsrd[-1].DebugLevel=0
-  uci set olsrd.@olsrd[-1].ClearScreen=no
-  uci set olsrd.@olsrd[-1].AllowNoInt=yes
   uci set olsrd.@olsrd[-1].IpVersion=6
-  uci set olsrd.@olsrd[-1].FIBMetric=flat
-  uci set olsrd.@olsrd[-1].Willingness=7
-  uci set olsrd.@olsrd[-1].TcRedundancy=2
-  uci set olsrd.@olsrd[-1].LinkQualityFishEye=1
   uci set olsrd.@olsrd[-1].LinkQualityAlgorithm=etx_ffeth
-  uci set olsrd.@olsrd[-1].MprCoverage=7
 
   uci -q add olsrd LoadPlugin
   uci set olsrd.@LoadPlugin[-1]=LoadPlugin
