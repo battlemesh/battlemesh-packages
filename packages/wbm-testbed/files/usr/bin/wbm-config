@@ -34,7 +34,6 @@ function main()
 
 	print("Clearing wireless config...")
 	x:foreach("wireless", "wifi-iface", function(s) x:delete("wireless", s[".name"]) end)
-	x:save("wireless")
 
 	print("Clearing network config...")
 	x:foreach("network", "interface", function(s)
@@ -43,10 +42,24 @@ function main()
 		end
 	end)
 
+	x:save("wireless")
+	x:save("network")
+	x:commit("wireless")
+	x:commit("network")
+
+	print("Preparing protocols...")
+	local _, p
+	for _, p in ipairs(protocols) do
+		local cmd = string.format("sh /etc/wbm/protos/%s.sh prepare", p)
+		printf("-> Calling %s", cmd)
+		os.execute(cmd)
+	end
+
 	print("Defining wireless networks...")
 	local channel2 = assert(x:get("wbm", "wireless", "channel_2ghz"))
 	local channel5 = assert(x:get("wbm", "wireless", "channel_5ghz"))
 	local wifi_num = 0
+	local batch = { }
 
 	x:foreach("wireless", "wifi-device", function(s)
 		local t = iw.type(s[".name"])
@@ -83,24 +96,31 @@ function main()
 			net = id .. "_" .. protocols[n]
 			x:set("network", net, "interface")
 			x:set("network", net, "proto", "static")
-			x:set("network", net, "ifname", string.format("@%s_base.%d", id, n + 10))
+			x:set("network", net, "ifname", string.format("@%s_base.%d", id, n + vlan_base - 1))
 			x:set("network", net, "ipaddr", v4)
 			x:set("network", net, "ip6addr", v6)
 
 			local cmd = string.format("sh /etc/wbm/protos/%s.sh add %s %s.%d %s %s",
-				protocols[n], net, ifn, n + 10, v4, v6)
+				protocols[n], net, ifn, n + vlan_base - 1, v4, v6)
 
-			printf("-> Calling %s", cmd)
-			os.execute(cmd)
+			batch[#batch+1] = cmd
 		end
 
 		wifi_num = wifi_num + 1
 	end)
 
+	print("Committing config files...")
 	x:save("network")
 	x:save("wireless")
 	x:commit("network")
 	x:commit("wireless")
+
+	print("Configuring protocols...")
+	local _, cmd
+	for _, cmd in ipairs(batch) do
+		printf("-> Calling %s", cmd)
+		os.execute(cmd)
+	end
 end
 
 main()
