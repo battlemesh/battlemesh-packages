@@ -82,13 +82,16 @@ function main()
 
 			net = id .. "_" .. protocols[n]
 			x:set("network", net, "interface")
-			x:set("network", net, "proto", "none")
+			x:set("network", net, "proto", "static")
 			x:set("network", net, "ifname", string.format("@%s_base.%d", id, n + 10))
+			x:set("network", net, "ipaddr", v4)
+			x:set("network", net, "ip6addr", v6)
 
-			local cmd = string.format("/etc/wbm/protos/%s.sh add %s %s.%d %s %s",
+			local cmd = string.format("sh /etc/wbm/protos/%s.sh add %s %s.%d %s %s",
 				protocols[n], net, ifn, n + 10, v4, v6)
 
 			printf("-> Calling %s", cmd)
+			os.execute(cmd)
 		end
 
 		wifi_num = wifi_num + 1
@@ -96,9 +99,8 @@ function main()
 
 	x:save("network")
 	x:save("wireless")
-
-	print(generate_address(0, 0))
-	print(generate_address(0, 1))
+	x:commit("network")
+	x:commit("wireless")
 end
 
 main()
