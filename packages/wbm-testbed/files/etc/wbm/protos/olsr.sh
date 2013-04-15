@@ -60,7 +60,7 @@ add () {
   interface_is_wifi()
   {
     local iface="$( echo "$1" | cut -d'.' -f1 )"
-    grep "$1:" /proc/net/wireless
+    grep "$iface:" /proc/net/wireless
   }
 
   interface_is_wifi "${REAL_INTERFACE}" && {
