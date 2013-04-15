@@ -24,6 +24,14 @@ local function generate_address(p, n)
 	       ipv6_template:gsub("P", id):gsub("R1", string.format("%x", r1)):gsub("R2", string.format("%x", r2))
 end
 
+local function set_hostname()
+	local r1, r2 = node_id()
+	local hostname = string.format("wbm%02x%02x", r1, r2)
+	x:set("system","system","hostname",hostname)
+	x:commit("system")
+	fs.writefile("/proc/sys/kernel/hostname",hostname)
+end
+
 local function printf(fmt, ...)
 	print(string.format(fmt, ...))
 end
@@ -125,6 +133,9 @@ function main()
 	x:save("wireless")
 	x:commit("network")
 	x:commit("wireless")
+
+	print("Configuring system...")
+	set_hostname()
 
 	print("Configuring protocols...")
 	local _, cmd
