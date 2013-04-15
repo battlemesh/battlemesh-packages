@@ -25,17 +25,30 @@ prepare () {
 # uci set bmx6.general.ipAutoPrefix="::/0"
 # uci set bmx6.general.globalPrefix="fd11::/48"
 
-  uci set bmx6.plugin=uci
-  uci set bmx6.plugin.plugin=bmx6_config.so
+  uci set bmx6.config=plugin
+  uci set bmx6.config.plugin=bmx6_config.so
 
-  uci set bmx6.plugin=json
-  uci set bmx6.plugin.plugin=bmx6_json.so
+  uci set bmx6.json=plugin
+  uci set bmx6.json.plugin=bmx6_json.so
 
-  uci set bmx6.tun4=tunOut
-  uci set bmx6.tun4.tunOut=tun4
-  uci set bmx6.tun4.network=10.0.0.0/8
-  uci set bmx6.tun4.minPrefixLen=24
-  uci set bmx6.tun4.maxPrefixLen=32
+  # Search for any announcement of 10/8 in the mesh cloud
+  uci set bmx6.mesh=tunOut
+  uci set bmx6.mesh.tunOut=mesh
+  uci set bmx6.mesh.network=10.0.0.0/8
+  uci set bmx6.mesh.minPrefixLen=24
+  uci set bmx6.mesh.maxPrefixLen=32
+
+  # Search for internet in the mesh cloud
+  uci set bmx6.inet=tunOut
+  uci set bmx6.inet.tunOut=inet
+  uci set bmx6.inet.network=0.0.0.0/0
+  uci set bmx6.inet.minPrefixLen=0
+  uci set bmx6.inet.maxPrefixLen=0
+
+  # Search for any IPv6 announcement in the mesh cloud
+  uci set bmx6.ipv6=tunOut
+  uci set bmx6.ipv6.tunOut=ipv6
+  uci set bmx6.ipv6.network=::/0
 
   uci commit bmx6
 }
