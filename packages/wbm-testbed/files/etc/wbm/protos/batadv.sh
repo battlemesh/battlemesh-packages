@@ -25,10 +25,10 @@ add () {
   if [ "$(uci -q get network.bat0.ip6addr)" == "" ] ; then
     uci set network.bat0.ip6addr="$IPV6"
   fi
-  uci set network.${INTERFACE}_batadv=interface
-  uci set network.${INTERFACE}_batadv.proto=batadv
-  uci set network.${INTERFACE}_batadv.mesh=bat0
-  uci set network.${INTERFACE}_batadv.mtu=1528
+  uci set network.${INTERFACE}=interface
+  uci set network.${INTERFACE}.proto=batadv
+  uci set network.${INTERFACE}.mesh=bat0
+  uci set network.${INTERFACE}.mtu=1528
   uci commit network
 }
 
