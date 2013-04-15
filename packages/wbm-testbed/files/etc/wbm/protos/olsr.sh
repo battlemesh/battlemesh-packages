@@ -5,6 +5,9 @@
 #ACTIONS are: add prepare clean?
 # example: $0 <action> <virtual_if> <actual_if> <IPv4/16> <IPv6/64>
 
+# olsr.sh prepare
+# olsr.sh add wlan wlan0
+# olsr.sh add lan eth0.1
 
 ACTION=$1
 LOGICAL_INTERFACE=$2
@@ -36,13 +39,13 @@ prepare() {
   uci -q add olsrd LoadPlugin
   uci set olsrd.@LoadPlugin[-1]=LoadPlugin
   uci set olsrd.@LoadPlugin[-1].library=olsrd_jsoninfo.so.0.0
-  uci set olsrd.@LoadPlugin[-1].accept=0.0.0.0
+  uci set olsrd.@LoadPlugin[-1].accept="::1"
   uci set olsrd.@LoadPlugin[-1].port=9090
 
   uci -q add olsrd LoadPlugin
   uci set olsrd.@LoadPlugin[-1]=LoadPlugin
   uci set olsrd.@LoadPlugin[-1].library=olsrd_txtinfo.so.0.1
-  uci set olsrd.@LoadPlugin[-1].accept=0.0.0.0
+  uci set olsrd.@LoadPlugin[-1].accept="::1"
   uci set olsrd.@LoadPlugin[-1].port=2006
 
   uci commit olsrd
@@ -51,7 +54,7 @@ prepare() {
 add() {
   uci -q add olsrd Interface
   uci set olsrd.@Interface[-1].interface=${LOGICAL_INTERFACE}
-  uci set olsrd.@Interface[-1].Ip4Broadcast=255.255.255.255
+  uci set olsrd.@Interface[-1].IPv6Multicast="ff02::6D"
   uci set olsrd.@Interface[-1].speed=5
 
   interface_is_wifi()
