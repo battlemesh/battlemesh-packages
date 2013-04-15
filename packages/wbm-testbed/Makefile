@@ -18,7 +18,7 @@
 #    the file called "COPYING".
 #
 # Contributors:
-#	Pau Escrich <p4u@dabax.net>
+#	Pau Escrich <p4u@dabax.net>, Jo-Philipp <jow@openwrt.org>, Guido Ibarren <guido@codigosur.org>
 #
 
 include $(TOPDIR)/rules.mk
