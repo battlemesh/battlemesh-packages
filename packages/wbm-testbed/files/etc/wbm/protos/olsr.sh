@@ -26,7 +26,7 @@ prepare () {
   uci set olsrd.@olsrd[0].DebugLevel=0
   uci set olsrd.@olsrd[0].ClearScreen=no
   uci set olsrd.@olsrd[0].AllowNoInt=yes
-  uci set olsrd.@olsrd[0].IpVersion=4
+  uci set olsrd.@olsrd[0].IpVersion=6
   uci set olsrd.@olsrd[0].FIBMetric=flat
   uci set olsrd.@olsrd[0].Willingness=7
   uci set olsrd.@olsrd[0].TcRedundancy=2
