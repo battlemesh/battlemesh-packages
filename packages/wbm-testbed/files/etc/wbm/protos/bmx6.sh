@@ -25,8 +25,11 @@ prepare () {
 # uci set bmx6.general.ipAutoPrefix="::/0"
 # uci set bmx6.general.globalPrefix="fd11::/48"
 
-  uci set bmx6.plugin=plugin
+  uci set bmx6.plugin=uci
   uci set bmx6.plugin.plugin=bmx6_config.so
+
+  uci set bmx6.plugin=json
+  uci set bmx6.plugin.plugin=bmx6_json.so
 
   uci set bmx6.tun4=tunOut
   uci set bmx6.tun4.tunOut=tun4
