@@ -36,13 +36,11 @@ define Package/wbm-testbed
   TITLE:=Addons for Wireless Battle of the Mesh testbed
   URL:=http://battlemesh.org
   DEPENDS:= \
-	+iwinfo +lua +libiwinfo-lua +lupi \
+	+iwinfo +lua +libiwinfo-lua \
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
-	+radvd \
 	+hostapd-mini +wpa-supplicant-mini \
 	+wireless-tools +iw +netperf \
-	+wide-dhcpv6-client +wide-dhcpv6-control +wide-dhcpv6-server \
-	+ip \
+	+ip +radvd \
 	+ndisc6 +rdisc6 +rdnssd \
 	+6in4 +6to4 \
 	+ip6tables +ip6tables-utils
