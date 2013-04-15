@@ -1,0 +1,104 @@
+#!/usr/bin/lua
+
+local crc = require "crc16"
+local fs  = require "nixio.fs"
+local uci = require "uci"
+local iw  = require "iwinfo"
+
+local x = uci:cursor()
+
+local function node_id()
+	local dev = assert(x:get("wbm", "network", "primary_dev"))
+	local mac = assert(fs.readfile("/sys/class/net/"..dev.."/address"))
+	local hash = crc.hash(mac)
+	return math.floor(hash / 256), hash % 256
+end
+
+local function generate_address(p, n)
+	local id = (n * 10) + p
+	local r1, r2 = node_id()
+	local ipv4_template = assert(x:get("wbm", "network", "ipv4_net"))
+	local ipv6_template = assert(x:get("wbm", "network", "ipv6_net"))
+
+	return ipv4_template:gsub("P", id):gsub("R1", r1):gsub("R2", r2),
+	       ipv6_template:gsub("P", id):gsub("R1", string.format("%x", r1)):gsub("R2", string.format("%x", r2))
+end
+
+local function printf(fmt, ...)
+	print(string.format(fmt, ...))
+end
+
+function main()
+	local protocols = assert(x:get("wbm", "network", "protos"))
+	local vlan_base = assert(x:get("wbm", "network", "vlan_tag_start"))
+
+	print("Clearing wireless config...")
+	x:foreach("wireless", "wifi-iface", function(s) x:delete("wireless", s[".name"]) end)
+	x:save("wireless")
+
+	print("Clearing network config...")
+	x:foreach("network", "interface", function(s)
+		if s[".name"]:match("^wbm_") then
+			x:delete("network", s[".name"])
+		end
+	end)
+
+	print("Defining wireless networks...")
+	local channel2 = assert(x:get("wbm", "wireless", "channel_2ghz"))
+	local channel5 = assert(x:get("wbm", "wireless", "channel_5ghz"))
+	local wifi_num = 0
+
+	x:foreach("wireless", "wifi-device", function(s)
+		local t = iw.type(s[".name"])
+		if not t then return end
+
+		local is_5ghz = iw[t].hwmodelist(s[".name"]).a
+		local ch = table.remove(is_5ghz and channel5 or channel2, 1)
+		local id = string.format("wbm%d", wifi_num)
+		local net = id .. "_base"
+		local ifn = string.format("wbm%d", wifi_num)
+		if not ch then
+			printf("-> No channel defined for %dGHz %s", is_5ghz and 5 or 2, s[".name"])
+			return
+		end
+
+		printf("-> Using channel %d for %dGHz %s", ch, is_5ghz and 5 or 2, s[".name"])
+		x:set("wireless", s[".name"], "channel", ch)
+		x:set("wireless", s[".name"], "disabled", 0)
+		x:set("wireless", id, "wifi-iface")
+		x:set("wireless", id, "device", s[".name"])
+		x:set("wireless", id, "mode", "adhoc")
+		x:set("wireless", id, "network", net)
+		x:set("wireless", id, "ssid", assert(x:get("wbm", "wireless", "ssid")))
+		x:set("wireless", id, "bssid", assert(x:get("wbm", "wireless", "bssid")))
+		x:set("wireless", id, "ifname", ifn)
+
+		x:set("network", net, "interface")
+		x:set("network", net, "proto", "none")
+
+		local n
+		for n = 1, #protocols do
+			local v4, v6 = generate_address(n, wifi_num)
+
+			net = id .. "_" .. protocols[n]
+			x:set("network", net, "interface")
+			x:set("network", net, "proto", "none")
+			x:set("network", net, "ifname", string.format("@%s_base.%d", id, n + 10))
+
+			local cmd = string.format("/etc/wbm/protos/%s.sh add %s %s.%d %s %s",
+				protocols[n], net, ifn, n + 10, v4, v6)
+
+			printf("-> Calling %s", cmd)
+		end
+
+		wifi_num = wifi_num + 1
+	end)
+
+	x:save("network")
+	x:save("wireless")
+
+	print(generate_address(0, 0))
+	print(generate_address(0, 1))
+end
+
+main()
