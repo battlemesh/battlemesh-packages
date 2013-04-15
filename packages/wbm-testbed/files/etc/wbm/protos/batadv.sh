@@ -6,6 +6,14 @@ REAL_INTERFACE=$3
 IPV4=$4
 IPV6=$5
 
+ipv4_addr () {
+  echo ${IPV4%%/*}
+}
+
+ipv4_netmask () {
+  echo ${IPV4##*/}
+}
+
 clean () {
   true  
 }
@@ -30,8 +38,8 @@ add () {
     uci set network.bat0.ip6addr="$IPV6"
   fi
   if [ "$(uci -q get network.bat0.ipaddr)" == "" ] ; then
-    uci set network.bat0.ipaddr="$IPV4"
-    uci set network.bat0.netmask="255.255.0.0"
+    uci set network.bat0.ipaddr="$(ipv4_addr)"
+    uci set network.bat0.netmask="$(ipv4_netmask)"
   fi
   uci set network.${LOGICAL_INTERFACE}=interface
   uci set network.${LOGICAL_INTERFACE}.proto=batadv
