@@ -23,6 +23,7 @@ START=99
 
 start() {
 	ulimit -c 20000
+	[ -e "/etc/rc.d/S50netserver" ] && { /etc/init.d/netserver stop; /etc/init.d/netserver disable; }
 	netserver -6 -p 12865
 }
 
