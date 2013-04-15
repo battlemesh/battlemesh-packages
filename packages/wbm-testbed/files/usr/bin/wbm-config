@@ -26,10 +26,15 @@ end
 
 local function set_hostname()
 	local r1, r2 = node_id()
-	local hostname = string.format("wbm%02x%02x", r1, r2)
-	x:set("system","system","hostname",hostname)
+	local hostname = string.format("wbm-%02x%02x", r1, r2)
+
+	x:foreach("system", "system", function(s)
+		x:set("system", s[".name"], "hostname", hostname)
+	end)
+	x:save("system")
 	x:commit("system")
-	fs.writefile("/proc/sys/kernel/hostname",hostname)
+
+	fs.writefile("/proc/sys/kernel/hostname", hostname)
 end
 
 local function printf(fmt, ...)
