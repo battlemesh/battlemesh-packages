@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ "$BUTTON" = wps ] && [ "$ACTION" = released ]
+	then 
+	echo "Restoring defaults..." 
+	/sbin/firstboot -y 
+	/sbin/reboot -f
+fi
