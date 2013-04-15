@@ -11,7 +11,7 @@ ipv4_addr () {
 }
 
 ipv4_netmask () {
-  echo ${IPV4$$*/}
+  echo ${IPV4##*/}
 }
 
 clean () {
