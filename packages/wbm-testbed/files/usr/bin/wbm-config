@@ -19,13 +19,9 @@ local function generate_address(p, n)
 	local r1, r2 = node_id()
 	local ipv4_template = assert(x:get("wbm", "network", "ipv4_net"))
 	local ipv6_template = assert(x:get("wbm", "network", "ipv6_net"))
-	local mac_template  = assert(x:get("wbm", "network", "mac_net"))
-
-	local function hex(x) return string.format("%x", x) end
 
 	return ipv4_template:gsub("P", id):gsub("R1", r1):gsub("R2", r2),
-	       ipv6_template:gsub("P", hex(id)):gsub("R1", hex(r1)):gsub("R2", hex(r2)),
-	       mac_template:gsub("P", hex(id)):gsub("R1", hex(r1)):gsub("R2", hex(r2))
+	       ipv6_template:gsub("P", id):gsub("R1", string.format("%x", r1)):gsub("R2", string.format("%x", r2))
 end
 
 local function generate_ssid()
@@ -79,14 +75,13 @@ function main()
 	for n = 1, #protocols do
 		local net = "lan_" .. protocols[n]
 		local ifn = string.format("eth0.%d", vlan_base + n - 1)
-		local v4, v6, mac = generate_address(n, 0)
+		local v4, v6 = generate_address(n, 0)
 
 		x:set("network", net, "interface")
 		x:set("network", net, "proto", "static")
 		x:set("network", net, "ifname", ifn)
 		x:set("network", net, "ipaddr", v4)
 		x:set("network", net, "ip6addr", v6)
-		x:set("network", net, "macaddr", mac)
 
 		local cmd = string.format("sh /etc/wbm/protos/%s.sh add %s %s %s %s",
 			protocols[n], net, ifn, v4, v6)
@@ -155,7 +150,7 @@ function main()
 
 		local n
 		for n = 1, #protocols do
-			local v4, v6, mac = generate_address(n, wifi_num)
+			local v4, v6 = generate_address(n, wifi_num)
 
 			net = id .. "_" .. protocols[n]
 			x:set("network", net, "interface")
@@ -163,7 +158,6 @@ function main()
 			x:set("network", net, "ifname", string.format("@%s_base.%d", id, n + vlan_base - 1))
 			x:set("network", net, "ipaddr", v4)
 			x:set("network", net, "ip6addr", v6)
-			x:set("network", net, "macaddr", mac)
 
 			local cmd = string.format("sh /etc/wbm/protos/%s.sh add %s %s.%d %s %s",
 				protocols[n], net, ifn, n + vlan_base - 1, v4, v6)
