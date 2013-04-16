@@ -51,9 +51,7 @@ end
 function main()
 	local protocols = assert(x:get("wbm", "network", "protos"))
 	local vlan_base = assert(x:get("wbm", "network", "vlan_tag_start"))
-
-	print("Clearing 6relayd config...")
-	x:foreach("6relayd", "server", function(s) x:delete("6relayd", s[".name"]) end)
+	local batch = { }
 
 	print("Clearing wireless config...")
 	x:foreach("wireless", "wifi-iface", function(s) x:delete("wireless", s[".name"]) end)
@@ -76,19 +74,19 @@ function main()
 	local n
 	for n = 1, #protocols do
 		local net = "lan_" .. protocols[n]
-		local rel = "relay_" .. protocols[n]
+		local ifn = string.format("eth0.%d", vlan_base + n - 1)
 		local v4, v6 = generate_address(n, 0)
+
 		x:set("network", net, "interface")
 		x:set("network", net, "proto", "static")
-		x:set("network", net, "ifname", string.format("eth0.%d", vlan_base + n - 1))
+		x:set("network", net, "ifname", ifn)
+		x:set("network", net, "ipaddr", v4)
 		x:set("network", net, "ip6addr", v6)
 
-		x:set("6relayd", rel, "server")
-		x:set("6relayd", rel, "rd", "server")
-		x:set("6relayd", rel, "ndp", "relay")
-		x:set("6relayd", rel, "dhcpv6", "server")
-		x:set("6relayd", rel, "master", string.format("wbm0_%s", protocols[n]))
-		x:set("6relayd", rel, "network", string.format("lan_%s", protocols[n]))
+		local cmd = string.format("sh /etc/wbm/protos/%s.sh add %s %s %s %s",
+			protocols[n], net, ifn, v4, v6)
+
+		batch[#batch+1] = cmd
 	end
 
 	x:save("6relayd")
@@ -109,8 +107,7 @@ function main()
 	print("Defining wireless networks...")
 	local channel2 = assert(x:get("wbm", "wireless", "channel_2ghz"))
 	local channel5 = assert(x:get("wbm", "wireless", "channel_5ghz"))
-	local wifi_num = 0
-	local batch = { }
+	local wifi_num = 1
 
 	x:foreach("wireless", "wifi-device", function(s)
 		local t = iw.type(s[".name"])
