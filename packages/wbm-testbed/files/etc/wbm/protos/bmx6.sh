@@ -18,8 +18,8 @@ clean () {
 }
 
 prepare () {
+  rm -f /etc/config/bmx6
   touch /etc/config/bmx6
-  touch /etc/config/network
 
   uci set bmx6.general=bmx6
 # uci set bmx6.general.ipAutoPrefix="::/0"
@@ -54,15 +54,6 @@ prepare () {
 }
 
 add () {
-  uci set network.${LOGICAL_INTERFACE}=interface
-  uci set network.${LOGICAL_INTERFACE}.ifname=${REAL_INTERFACE}
-  uci set network.${LOGICAL_INTERFACE}.proto=static
-  uci set network.${LOGICAL_INTERFACE}.ip6addr="${IPV6}"
-#  uci set network.${LOGICAL_INTERFACE}.ipaddr=""
-#  uci set network.${LOGICAL_INTERFACE}.netmask=""
-#  uci set network.${LOGICAL_INTERFACE}.mtu=1500
-  uci commit network
-
   uci set bmx6.${LOGICAL_INTERFACE}=dev
   uci set bmx6.${LOGICAL_INTERFACE}.dev=${REAL_INTERFACE}
   uci set bmx6.${LOGICAL_INTERFACE}.globalPrefix="$( echo ${IPV6} echo | sed s/"\/.*"/"\/128"/ )"
