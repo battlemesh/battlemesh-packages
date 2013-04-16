@@ -27,6 +27,10 @@ prepare () {
   uci set network.bat1_v6=interface
   uci set network.bat1_v6.ifname="@bat1"
   uci set network.bat1_v6.proto=dhcpv6
+
+  id="$(uci get system.@system[0].hostname | sed -e 's/wbm-\(..\)\(..\)/\1:\2/')"
+  uci set network.bat1.macaddr="02:ba:fe:$id:01"
+
   uci commit network
 }
 
