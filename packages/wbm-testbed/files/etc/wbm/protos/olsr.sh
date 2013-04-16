@@ -59,8 +59,14 @@ add() {
 
   interface_is_wifi()
   {
-    local iface="${1%%.*}"
-    grep -q "$iface:" /proc/net/wireless
+    case "$iface" in
+      wbm*)
+        return 0
+      ;;
+      *)
+        return 1
+      ;;
+    esac
   }
 
   if interface_is_wifi "${REAL_INTERFACE}"; then
