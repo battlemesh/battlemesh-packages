@@ -15,6 +15,11 @@ prepare () {
   uci set batman-adv.bat1.bridge_loop_avoidance=1
   uci commit batman-adv
 
+  uci set dhcp.bat1=dhcp
+  uci set dhcp.bat1.interface=bat1
+  uci set dhcp.bat1.ignore=1
+  uci commit dhcp
+
   uci set network.bat1=interface
   uci set network.bat1.ifname=bat1
   uci set network.bat1.proto=dhcp
