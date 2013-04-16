@@ -64,7 +64,7 @@ function main()
 	end)
 
 	x:foreach("network", "switch_vlan", function(s) x:delete("network", s[".name"]) end)
-	x:foreach("network", "switch", function(s) x:set("network", s[".name"], "enable_vlan", 0) end)
+	x:foreach("network", "switch", function(s) x:delete("network", s[".name"]) end)
 
 	x:delete("network", "wan")
 	x:delete("network", "wan6")
