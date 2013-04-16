@@ -10,6 +10,7 @@ config wbm network
 	list protos bmx6
 	list protos batadv
 	list protos babel
+	list protos mgmt
 
 	# ipv4_net and ipv6_net are the networks that each node will use for its own.
 	# P = protocol identifier (0,1,2...) + 10 for interface
