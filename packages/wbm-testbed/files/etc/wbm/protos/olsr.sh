@@ -51,7 +51,7 @@ add() {
 
   interface_is_wifi()
   {
-    case "$iface" in
+    case "$1" in
       wbm*)
         return 0
       ;;
