@@ -60,7 +60,15 @@ local function list_originators(proto)
 end
 
 local function traceroute(dest)
-	print(util.exec('mtr fdba:2:6565::1 --report-cycles=10 --raw'))
+	print(util.exec('mtr ' .. dest .. ' --report-cycles=3 --raw'))
+end
+
+local function ping6(dest, interface)
+	print(util.exec('ping6 -c 3 ' .. dest .. ' -I ' .. interface))
+end
+
+local function top()
+	print(util.exec('top -b -n 1'))
 end
 
 -- MAIN
@@ -72,6 +80,8 @@ local function main()
 	end
 
 	if argv[1] == "trace" then traceroute(argv[2]) end
+	if argv[1] == "ping6" then ping6(argv[2], argv[3]) end
+	if argv[1] == "top" then top() end
 		
 
 end
