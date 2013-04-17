@@ -2,16 +2,9 @@
 
 local crc = require "crc16"
 local uci = require "uci"
+local util = require "util"
 local argv = arg
 local x = uci.cursor()
-
-local function sprintf(...)
-	return string.format(...)
-end
-
-local function printf(...)
-	print(sprintf(...))
-end
 
 local function neigh_batadv()
 	local c = io.popen("batctl o")
@@ -33,19 +26,53 @@ local function neigh_batadv()
 		end
 
 		local id = crc.hash(a)
-		return sprintf("%17s	%6.2f%%	%8s	%s-%04x",
-			a, q / 255 * 100, i, s, id)
+		return util.sprintf("%17s	%6.2f%%	%8s	%s-%04x",			a, q / 255 * 100, i, s, id)
 	end
 end
 
-local function list_neighbours(proto)
-	if proto == "batadv" then print(neigh_batadv()) end
+function orig_bmx6()
+	local nodes = util.lines(
+		util.exec('bmx6 -c --originators | awk \'{print  $3}\' | grep -e ".*:.*:"'))
+	return nodes
 end
+
+function neigh_bmx6()
+	local nodes = util.lines(util.exec(
+		'bmx6 -c --links | awk \'{print $2}\' |  grep -e ".*:.*:"'))
+	return nodes
+end
+
+
+-- EXPERIMENTS
+ 
+local function list_neighbours(proto)
+	local neighbours = {}
+	if proto == "batadv" then neighbours = neigh_batadv() end
+	if proto == "bmx6" then neighbours = neigh_bmx6() end
+	util.printable(neighbours)	
+end
+
+local function list_originators(proto)
+	local originators = {}
+	if proto == "batadv" then originators = orig_batadv() end
+	if proto == "bmx6" then originators = orig_bmx6() end
+	util.printable(originators)	
+end
+
+local function traceroute(dest)
+	print(util.exec('mtr fdba:2:6565::1 --report-cycles=10 --raw'))
+end
+
+-- MAIN
 
 local function main()
 	if argv[1] == "list" then
 	  if argv[2] == "neighbours" then list_neighbours(argv[3]) end
+	  if argv[2] == "originators" then list_originators(argv[3]) end
 	end
+
+	if argv[1] == "trace" then traceroute(argv[2]) end
+		
 
 end
 
