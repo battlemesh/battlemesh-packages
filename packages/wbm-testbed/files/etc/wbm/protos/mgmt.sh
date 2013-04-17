@@ -32,6 +32,20 @@ prepare () {
   uci set network.mgmt_v6.ifname="@mgmt"
   uci set network.mgmt_v6.proto=dhcpv6
   uci commit network
+
+  uci add firewall zone
+  uci set firewall.@zone[-1].name=mgmt
+  uci set firewall.@zone[-1].network=mgmt
+  uci set firewall.@zone[-1].input=ACCEPT
+  uci set firewall.@zone[-1].output=ACCEPT
+  uci set firewall.@zone[-1].forward=ACCEPT
+  uci set firewall.@zone[-1].masq=1
+  uci set firewall.@zone[-1].mtu_fix=1
+
+  uci add firewall forwarding
+  uci set firewall.@forwarding[-1].src=lan
+  uci set firewall.@forwarding[-1].dest=mgmt
+  uci commit firewall
 }
 
 add () {
