@@ -1,0 +1,70 @@
+#!/bin/sh
+
+[ -n "$1" ] || {
+	echo "Usage: $0 <mac|ipv4|ipv6>" >&2
+	exit 1
+}
+
+print_protocol() {
+	case "$(($1 % 10))" in
+		1) echo "OLSR" ;;
+		2) echo "BMX6" ;;
+		3) echo "B.A.T.M.A.N. Advanced" ;;
+		4) echo "Babel" ;;
+		5) echo "Managment Network" ;;
+		*) echo "Unknown protocol" ;;
+	esac
+}
+
+print_interface() {
+	case "$(($1 / 10))" in
+		0) echo "Ethernet" ;;
+		1) echo "Radio #1" ;;
+		2) echo "Radio #2" ;;
+		3) echo "Radio #3" ;;
+		*) echo "Unknown interface" ;;
+	esac
+}
+
+decode_mac() {
+	local mac="$1"
+	local oldIFS="$IFS"
+
+	IFS=":"; set -- $mac; IFS="$oldIFS"
+
+	echo    "Node ID:   $4$5"
+	echo -n "Protocol:  "; print_protocol "0x$3"
+	echo -n "Interface: "; print_interface "0x$3"
+}
+
+decode_ipv6() {
+	local ipv6="$1"
+	local oldIFS="$IFS"
+
+	IFS=":"; set -- $ipv6; IFS="$oldIFS"
+
+	echo    "Node ID:   $3"
+	echo -n "Protocol:  "; print_protocol "0x$2"
+	echo -n "Interface: "; print_interface "0x$2"
+}
+
+decode_ipv4() {
+	local ipv4="$1"
+	local oldIFS="$IFS"
+
+	IFS="."; set -- $ipv4; IFS="$oldIFS"
+
+	printf  "Node ID:   %02x%02x\n" $3 $4
+	echo -n "Protocol:  "; print_protocol $2
+	echo -n "Interface: "; print_interface $2
+}
+
+case "$1" in
+	??:??:??:??:??:??) decode_mac "$1" ;;
+	*:*)               decode_ipv6 "$1" ;;
+	*.*.*.*)           decode_ipv4 "$1" ;;
+	*)
+		echo "Unable to determine type of '$1'" >&2
+		exit 2
+	;;
+esac
