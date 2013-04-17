@@ -75,7 +75,7 @@ end
 
 local function main()
 	if argv[1] == "list" then
-	  if argv[2] == "neighbours" then list_neighbours(argv[3]) end
+	  if argv[2] == "neighbours" or argv[2] == "neigh" then list_neighbours(argv[3]) end
 	  if argv[2] == "originators" then list_originators(argv[3]) end
 	end
 
