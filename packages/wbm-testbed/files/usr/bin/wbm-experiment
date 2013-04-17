@@ -48,6 +48,12 @@ function neigh_olsr6()
 	return nodes
 end
 
+function links_olsr6()
+	local links = util.lines(util.exec(
+		'wget http://[::1]:2006/links -O - 2>/dev/null'))
+	return links
+end
+
 
 -- EXPERIMENTS
  
@@ -64,6 +70,12 @@ local function list_originators(proto)
 	if proto == "batadv" then originators = orig_batadv() end
 	if proto == "bmx6" then originators = orig_bmx6() end
 	util.printable(originators)	
+end
+
+local function list_links(proto)
+	local links = {}
+	if proto == "olsr" then links = links_olsr6() end
+	util.printable(links)
 end
 
 local function traceroute(dest)
@@ -84,6 +96,7 @@ local function main()
 	if argv[1] == "list" then
 	  if argv[2] == "neighbours" or argv[2] == "neigh" then list_neighbours(argv[3]) end
 	  if argv[2] == "originators" then list_originators(argv[3]) end
+	  if argv[2] == "links" then list_links(argv[3]) end
 	end
 
 	if argv[1] == "trace" then traceroute(argv[2]) end
