@@ -42,6 +42,12 @@ function neigh_bmx6()
 	return nodes
 end
 
+function neigh_olsr6()
+	local nodes = util.lines(util.exec(
+		'wget http://[::1]:2006/neigh -O - 2>/dev/null'))
+	return nodes
+end
+
 
 -- EXPERIMENTS
  
@@ -49,6 +55,7 @@ local function list_neighbours(proto)
 	local neighbours = {}
 	if proto == "batadv" then neighbours = neigh_batadv() end
 	if proto == "bmx6" then neighbours = neigh_bmx6() end
+	if proto == "olsr" then neighbours = neigh_olsr6() end
 	util.printable(neighbours)	
 end
 
