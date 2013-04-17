@@ -16,6 +16,9 @@ prepare () {
   uci set batman-adv.bat1.bridge_loop_avoidance=1
   uci commit batman-adv
 
+  uci set dhcp.@dnsmasq[0].domainneeded=0
+  uci set dhcp.@dnsmasq[0].boguspriv=0
+  uci set dhcp.@dnsmasq[0].rebind_protection=0
   uci set dhcp.mgmt=dhcp
   uci set dhcp.mgmt.interface=mgmt
   uci set dhcp.mgmt.ignore=1
