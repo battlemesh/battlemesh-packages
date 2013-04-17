@@ -1,0 +1,53 @@
+#!/usr/bin/lua
+
+local crc = require "crc16"
+local uci = require "uci"
+local argv = arg
+local x = uci.cursor()
+
+local function sprintf(...)
+	return string.format(...)
+end
+
+local function printf(...)
+	print(sprintf(...))
+end
+
+local function neigh_batadv()
+	local c = io.popen("batctl o")
+	local s = assert(x:get("wbm", "wireless", "ssid"))
+
+	c:read("*l")
+	c:read("*l")
+
+	local l
+	while true do
+		l = c:read("*l")
+		if not l then
+			break
+		end
+
+		local q, a, i = l:match("^%S+ +%S+ +%((%d+)%) +(%S+) +%[ -(%S+)%]")
+		if not (q and a and i) then
+			break
+		end
+
+		local id = crc.hash(a)
+		return sprintf("%17s	%6.2f%%	%8s	%s-%04x",
+			a, q / 255 * 100, i, s, id)
+	end
+end
+
+local function list_neighbours(proto)
+	if proto == "batadv" then print(neigh_batadv()) end
+end
+
+local function main()
+	if argv[1] == "list" then
+	  if argv[2] == "neighbours" then list_neighbours(argv[3]) end
+	end
+
+end
+
+main()
+
