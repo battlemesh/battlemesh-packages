@@ -30,7 +30,7 @@ prepare () {
 
   # Some tunning for the WBM scenario
   uci set bmx6.general.dbgMuteTimeout=1000000
-  uci set bmx6.general.purgeTimeout=20000
+  uci set bmx6.general.purgeTimeout=70000
   uci set bmx6.general.linkPurgeTimeout=20000
   uci set bmx6.general.dadTimeout=15000
 
