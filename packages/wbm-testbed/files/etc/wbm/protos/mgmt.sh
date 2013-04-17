@@ -31,6 +31,7 @@ prepare () {
   uci set network.mgmt_v6=interface
   uci set network.mgmt_v6.ifname="@mgmt"
   uci set network.mgmt_v6.proto=dhcpv6
+  uci set network.mgmt_v6.reqprefix=no
   uci commit network
 
   uci add firewall zone
