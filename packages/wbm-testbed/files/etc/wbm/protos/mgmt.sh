@@ -12,6 +12,7 @@ clean () {
 
 prepare () {
   uci set batman-adv.bat1=mesh
+  uci set batman-adv.bat1.orig_interval=600
   uci set batman-adv.bat1.bridge_loop_avoidance=1
   uci commit batman-adv
 
