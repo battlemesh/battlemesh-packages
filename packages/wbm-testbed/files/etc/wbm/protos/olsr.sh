@@ -26,10 +26,6 @@ prepare() {
 
   uci -q add olsrd LoadPlugin
   uci set olsrd.@LoadPlugin[-1]=LoadPlugin
-  uci set olsrd.@LoadPlugin[-1].library=olsrd_arprefresh.so.0.1
-
-  uci -q add olsrd LoadPlugin
-  uci set olsrd.@LoadPlugin[-1]=LoadPlugin
   uci set olsrd.@LoadPlugin[-1].library=olsrd_jsoninfo.so.0.0
   uci set olsrd.@LoadPlugin[-1].accept="::1"
   uci set olsrd.@LoadPlugin[-1].port=9090
