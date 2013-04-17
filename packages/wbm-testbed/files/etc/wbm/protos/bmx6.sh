@@ -25,9 +25,20 @@ prepare () {
 # uci set bmx6.general.ipAutoPrefix="::/0"
 # uci set bmx6.general.globalPrefix="fd11::/48"
 
+  # Prevent syslog messages by default
+  uci set bmx6.general.syslog=0
+
+  # Some tunning for the WBM scenario
+  uci set bmx6.general.dbgMuteTimeout=1000000
+  uci set bmx6.general.purgeTimeout=20000
+  uci set bmx6.general.linkPurgeTimeout=20000
+  uci set bmx6.general.dadTimeout=15000
+
+  # Enable bmx6 uci config plugin
   uci set bmx6.config=plugin
   uci set bmx6.config.plugin=bmx6_config.so
 
+  # Enable de JSON plugin to get bmx6 information in json format
   uci set bmx6.json=plugin
   uci set bmx6.json.plugin=bmx6_json.so
 
