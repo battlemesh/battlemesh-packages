@@ -1,0 +1,110 @@
+#!/usr/bin/lua
+
+local fs = require "nixio.fs"
+local uci = require "uci"
+
+local x = uci.cursor()
+
+local mirror = x:get("wbm", "update", "mirror") or "http://10.254.254.254/wbm"
+local filename = x:get("wbm", "update", "filename") or "auto"
+
+local function wget(url)
+	local dl = assert(io.popen(string.format("wget -qO- %q", url)))
+	return dl
+end
+
+local function file(path)
+	local data = fs.readfile(path)
+	if data then
+		data = data:gsub("%s+$", "")
+	end
+	return data
+end
+
+local function printf(fmt, ...)
+	print(string.format(fmt, ...))
+end
+
+local function exit(n)
+	os.execute("lock -u /tmp/wbm-fwupdate.lock")
+	os.exit(n)
+end
+
+os.execute("lock /tmp/wbm-fwupdate.lock")
+
+if not filename or filename == "auto" then
+	local board_name = assert(file("/tmp/sysinfo/board_name"))
+
+	local ln
+	local dl = wget(mirror.."/META")
+
+	filename = nil
+	
+	while true do
+		ln = dl:read("*l")
+		if not ln then break end
+
+		local md5, file, version = ln:match("(%S+) +(%S+) +(%S+)")
+		if md5 and file and version then
+			if file:find(board_name, nil, true) then
+				filename = file
+				break
+			end
+		end
+	end
+
+	dl:close()
+
+	if not filename then
+		error("Unable to find a suitable image file")
+	end
+end
+
+printf("Using image file %q", filename)
+printf("Fetching meta information...")
+
+local ln, remote_checksum, remote_version
+local dl = wget(mirror.."/META")
+while true do
+	ln = dl:read("*l")
+	if not ln then break end
+
+	local c, f, v = ln:match("(%S+) +(%S+) +(%S+)")
+	if f == filename then
+		printf("	Checksum:        %s", c)
+		printf("	Remote version:  %s", v)
+		remote_checksum = c
+		remote_version = v
+		break
+	end
+end
+
+if not (remote_version and remote_checksum) then
+	error("Unable to fetch meta data")
+end
+
+local local_version = assert(file("/etc/wbm.version"))
+printf("	Local version:   %s", local_version)
+
+if tonumber(remote_version) <= tonumber(local_version) then
+	printf("The installed firmware is up to date")
+	exit(0)
+else
+	printf("An update is available!")
+end
+
+printf("Downloading image...")
+os.execute(string.format("wget -O /tmp/%s %s/%s", filename, mirror, filename))
+
+printf("Verifying image...")
+local md5 = io.popen(string.format("md5sum /tmp/%s", filename))
+local local_checksum = md5:read(32)
+md5:close()
+
+if local_checksum ~= remote_checksum then
+	print("Checksum verification failed! Aborting!")
+	exit(1)
+end
+
+printf("Starting sysupgrade...")
+os.execute(string.format("/sbin/sysupgrade -n /tmp/%s", filename))
