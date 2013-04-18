@@ -2,28 +2,9 @@
 
 local crc = require "crc16"
 local uci = require "uci"
+local util = require "util"
 local argv = arg
 local x = uci.cursor()
-
--- test suite utilities
-
-local function sprintf(...)
-	return string.format(...)
-end
-
-local function printf(...)
-	print(sprintf(...))
-end
-
-function string:split(sep)
-   --Adding functionality to lua's string function to handle spliting CSV's
-   local sep, fields = sep or ":", {}
-   local pattern = string.format("([^%s]+)", sep)
-   self:gsub(pattern, function(c) fields[#fields+1] = c end)
-   return fields
-end
-
--- Testing Functions
 
 local function neigh_batadv()
 	local c = io.popen("batctl o")
@@ -45,76 +26,64 @@ local function neigh_batadv()
 		end
 
 		local id = crc.hash(a)
-		return sprintf("%17s	%6.2f%%	%8s	%s-%04x",
-			a, q / 255 * 100, i, s, id)
+		return util.sprintf("%17s	%6.2f%%	%8s	%s-%04x",			a, q / 255 * 100, i, s, id)
 	end
 end
 
-local function neigh_olsr()
-   --Uses txtinfo plugin to gather olsr neighborhood. Gathers both ipv6 and ipv4 addresses and appends them to the neighborhood list.
-   local rawdata = luci.sys.httpget("http://127.0.0.1:2006/neighbors")
-   local tables = luci.util.split(luci.util.trim(rawdata), nil, nil, nil)
-   neighborhood = {}
-   for i,x in ipairs(tables) do
-	  b,c = string.find(x, "^%d+%.%d+%.%d+%.%d+")
-	  d,e = string.find(x, "^%x+%:%x+%:%x+%:%x+%:%x+%:%x+%:%x+%:%x+")
-	  if b then
-		 table.insert(neighborhood, string.sub(x,b,c))
-	  elseif d then
-		 table.insert(neighborhood, string.sub(x,d,e))
-	  end
-   end
-   return neighborhood
+function orig_bmx6()
+	local nodes = util.lines(
+		util.exec('bmx6 -c --originators | awk \'{print  $3}\' | grep -e ".*:.*:"'))
+	return nodes
 end
 
-local function net_perf(ipaddr)
-   -- Runs an netperf client aimed at the supplied IP address and returns the raw throughput @ kilobits per second
-   local throughput = io.popen("netperf -v 0 -f k -H "..ipaddr)
-   tp = throughput:read("*a")
-   raw = tp:match("^MIGRATED.*demo\n(.*)%s\n")
-
-   if tp:match("%d+%.%d+") then
-	  return ("netPerf to " .. ipaddr .. " measured at " .. raw .. "k")
-   else
-	  return ("NetPerf Error: " .. tp)
-   end
+function neigh_bmx6()
+	local nodes = util.lines(util.exec(
+		'bmx6 -c --links | awk \'{print $2}\' |  grep -e ".*:.*:"'))
+	return nodes
 end
 
 
-
-
-local function append_log(data)
-   -- Simple log appender
-   testLog = io.open("/tmp/wbm06Test.log", "a")
-   testLog:write(data)
-   testLog:close()
-end
-
-
--- test suite arguments
-
-local function throughput_test(ipaddr)
-   if ipaddr then
-	  print(net_perf(ipaddr))
-   else
-	  print("Please supply an ip address")
-   end
-end
-
+-- EXPERIMENTS
+ 
 local function list_neighbours(proto)
-   if proto == "batadv" then
-	  print(neigh_batadv())
-   elseif proto == "olsr" then
-		 print(neigh_olsr())
-   end
+	local neighbours = {}
+	if proto == "batadv" then neighbours = neigh_batadv() end
+	if proto == "bmx6" then neighbours = neigh_bmx6() end
+	util.printable(neighbours)	
 end
 
+local function list_originators(proto)
+	local originators = {}
+	if proto == "batadv" then originators = orig_batadv() end
+	if proto == "bmx6" then originators = orig_bmx6() end
+	util.printable(originators)	
+end
+
+local function traceroute(dest)
+	print(util.exec('mtr ' .. dest .. ' --report-cycles=3 --raw'))
+end
+
+local function ping6(dest, interface)
+	print(util.exec('ping6 -c 3 ' .. dest .. ' -I ' .. interface))
+end
+
+local function top()
+	print(util.exec('top -b -n 1'))
+end
+
+-- MAIN
 
 local function main()
 	if argv[1] == "list" then
-	   if argv[2] == "neighbours" then list_neighbours(argv[3]) end
-	else if argv[1] == "throughput" then throughput_test(argv[2]) end
+	  if argv[2] == "neighbours" then list_neighbours(argv[3]) end
+	  if argv[2] == "originators" then list_originators(argv[3]) end
 	end
+
+	if argv[1] == "trace" then traceroute(argv[2]) end
+	if argv[1] == "ping6" then ping6(argv[2], argv[3]) end
+	if argv[1] == "top" then top() end
+		
+
 end
 
 main()
