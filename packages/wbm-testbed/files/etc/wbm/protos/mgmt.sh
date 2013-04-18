@@ -16,19 +16,37 @@ prepare () {
   uci set batman-adv.bat1.bridge_loop_avoidance=1
   uci commit batman-adv
 
-  uci set dhcp.bat1=dhcp
-  uci set dhcp.bat1.interface=bat1
-  uci set dhcp.bat1.ignore=1
+  uci set dhcp.@dnsmasq[0].domainneeded=0
+  uci set dhcp.@dnsmasq[0].boguspriv=0
+  uci set dhcp.@dnsmasq[0].rebind_protection=0
+  uci set dhcp.mgmt=dhcp
+  uci set dhcp.mgmt.interface=mgmt
+  uci set dhcp.mgmt.ignore=1
   uci commit dhcp
 
-  uci set network.bat1=interface
-  uci set network.bat1.ifname=bat1
-  uci set network.bat1.proto=dhcp
+  uci set network.mgmt=interface
+  uci set network.mgmt.ifname=bat1
+  uci set network.mgmt.proto=dhcp
 
-  uci set network.bat1_v6=interface
-  uci set network.bat1_v6.ifname="@bat1"
-  uci set network.bat1_v6.proto=dhcpv6
+  uci set network.mgmt_v6=interface
+  uci set network.mgmt_v6.ifname="@mgmt"
+  uci set network.mgmt_v6.proto=dhcpv6
+  uci set network.mgmt_v6.reqprefix=no
   uci commit network
+
+  uci add firewall zone
+  uci set firewall.@zone[-1].name=mgmt
+  uci set firewall.@zone[-1].network=mgmt
+  uci set firewall.@zone[-1].input=ACCEPT
+  uci set firewall.@zone[-1].output=ACCEPT
+  uci set firewall.@zone[-1].forward=ACCEPT
+  uci set firewall.@zone[-1].masq=1
+  uci set firewall.@zone[-1].mtu_fix=1
+
+  uci add firewall forwarding
+  uci set firewall.@forwarding[-1].src=lan
+  uci set firewall.@forwarding[-1].dest=mgmt
+  uci commit firewall
 }
 
 add () {
