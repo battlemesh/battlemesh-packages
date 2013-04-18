@@ -30,9 +30,6 @@ prepare () {
 
   # Some tunning for the WBM scenario
   uci set bmx6.general.dbgMuteTimeout=1000000
-  uci set bmx6.general.purgeTimeout=70000
-  uci set bmx6.general.linkPurgeTimeout=20000
-  uci set bmx6.general.dadTimeout=15000
 
   # Enable bmx6 uci config plugin
   uci set bmx6.config=plugin
@@ -42,20 +39,24 @@ prepare () {
   uci set bmx6.json=plugin
   uci set bmx6.json.plugin=bmx6_json.so
 
+  # Smart gateway search for IPV4
+
   # Search for any announcement of 10/8 in the mesh cloud
-  uci set bmx6.mesh=tunOut
-  uci set bmx6.mesh.tunOut=mesh
-  uci set bmx6.mesh.network=10.0.0.0/8
-  uci set bmx6.mesh.minPrefixLen=24
-  uci set bmx6.mesh.maxPrefixLen=32
+  #uci set bmx6.mesh=tunOut
+  #uci set bmx6.mesh.tunOut=mesh
+  #uci set bmx6.mesh.network=10.0.0.0/8
+  #uci set bmx6.mesh.minPrefixLen=24
+  #uci set bmx6.mesh.maxPrefixLen=32
 
   # Search for internet in the mesh cloud
-  uci set bmx6.inet=tunOut
-  uci set bmx6.inet.tunOut=inet
-  uci set bmx6.inet.network=0.0.0.0/0
-  uci set bmx6.inet.minPrefixLen=0
-  uci set bmx6.inet.maxPrefixLen=0
+  #uci set bmx6.inet=tunOut
+  #uci set bmx6.inet.tunOut=inet
+  #uci set bmx6.inet.network=0.0.0.0/0
+  #uci set bmx6.inet.minPrefixLen=0
+  #uci set bmx6.inet.maxPrefixLen=0
 
+  # Smart gateway search for IPV6
+  
   # Search for any IPv6 announcement in the mesh cloud
   uci set bmx6.ipv6=tunOut
   uci set bmx6.ipv6.tunOut=ipv6
@@ -69,13 +70,16 @@ add () {
   uci set bmx6.${LOGICAL_INTERFACE}.dev=${REAL_INTERFACE}
   uci set bmx6.${LOGICAL_INTERFACE}.globalPrefix="$( echo ${IPV6} echo | sed s/"\/.*"/"\/128"/ )"
 
-  if uci -q get bmx6.general.tun4Address > /dev/null ; then
-    uci set bmx6.tun_${LOGICAL_INTERFACE}=tunInNet
-    uci set bmx6.tun_${LOGICAL_INTERFACE}.tunInNet="$( echo ${IPV4} echo | sed s/"\/.*"/"\/32"/ )"
-    uci set bmx6.tun_${LOGICAL_INTERFACE}.bandwidth="128000000000"
-  else
-    uci set bmx6.general.tun4Address="$( echo ${IPV4} echo | sed s/"\/.*"/"\/32"/ )"
-  fi
+  # To enable IPv4
+
+  #if uci -q get bmx6.general.tun4Address > /dev/null ; then
+  #  uci set bmx6.tun_${LOGICAL_INTERFACE}=tunInNet
+  #  uci set bmx6.tun_${LOGICAL_INTERFACE}.tunInNet="$( echo ${IPV4} echo | sed s/"\/.*"/"\/32"/ )"
+  #  uci set bmx6.tun_${LOGICAL_INTERFACE}.bandwidth="128000000000"
+  #else
+  #  uci set bmx6.general.tun4Address="$( echo ${IPV4} echo | sed s/"\/.*"/"\/32"/ )"
+  #fi
+
   uci commit bmx6
 }
 
