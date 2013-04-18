@@ -63,7 +63,7 @@ endef
 
 define Package/wbm-testbed/install
 	$(CP) ./files/* $(1)/
-	date +%Y%m%d%H%M > $(1)/etc/wbm.version
+	date -u +%Y%m%d%H%M > $(1)/etc/wbm.version
 	chmod 755 $(1)/etc/init.d/wbm
 	chmod 755 $(1)/usr/bin/wbm-config
 	chmod 755 $(1)/etc/wbm/protos/*.sh
