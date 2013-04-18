@@ -144,6 +144,7 @@ function main()
 		x:set("wireless", id, "ssid", generate_ssid())
 		x:set("wireless", id, "bssid", assert(x:get("wbm", "wireless", "bssid")))
 		x:set("wireless", id, "ifname", ifn)
+		x:set("wireless", id, "mcast_rate", '54000')
 
 		x:set("network", net, "interface")
 		x:set("network", net, "proto", "none")
