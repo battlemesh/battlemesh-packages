@@ -30,8 +30,6 @@ local function exit(n)
 	os.exit(n)
 end
 
-os.execute("lock /tmp/wbm-fwupdate.lock")
-
 if not filename or filename == "auto" then
 	local board_name = assert(file("/tmp/sysinfo/board_name"))
 
@@ -92,6 +90,8 @@ if tonumber(remote_version) <= tonumber(local_version) then
 else
 	printf("An update is available!")
 end
+
+os.execute("lock /tmp/wbm-fwupdate.lock")
 
 printf("Downloading image...")
 os.execute(string.format("wget -O /tmp/%s %s/%s", filename, mirror, filename))
