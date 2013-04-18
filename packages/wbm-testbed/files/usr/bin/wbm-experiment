@@ -13,6 +13,8 @@ local function printf(...)
 	print(sprintf(...))
 end
 
+-- Testing Functions
+
 local function neigh_batadv()
 	local c = io.popen("batctl o")
 	local s = assert(x:get("wbm", "wireless", "ssid"))
@@ -38,27 +40,44 @@ local function neigh_batadv()
 	end
 end
 
-local function list_neighbours(proto)
-	if proto == "batadv" then print(neigh_batadv()) end
+local function neigh_olsr()
+   --Uses txtinfo plugin to gather olsr neighborhood. Gathers both ipv6 and ipv4 addresses and appends them to the neighborhood list.
+   local rawdata = luci.sys.httpget("http://127.0.0.1:2006/neighbors")
+   local tables = luci.util.split(luci.util.trim(rawdata), nil, nil, nil)
+   neighborhood = {}
+   for i,x in ipairs(tables) do
+	  b,c = string.find(x, "^%d+%.%d+%.%d+%.%d+")
+	  d,e = string.find(x, "^%x+%:%x+%:%x+%:%x+%:%x+%:%x+%:%x+%:%x+")
+	  if b then
+		 table.insert(neighborhood, string.sub(x,b,c))
+	  elseif d then
+		 table.insert(neighborhood, string.sub(x,d,e))
+	  end
+   end
+   return neighborhood
 end
 
-local function throughput_test(ipaddr)
-   if ipaddr then
-	  appendLog(netPerf(ipaddr))
+local function net_perf(ipaddr)
+   -- Runs an netperf client aimed at the supplied IP address and returns the raw throughput @ kilobits per second
+   local throughput = io.popen("netperf -v 0 -f k -H "..ipaddr)
+   tp = throughput:read("*a")
+   raw = tp:match("^MIGRATED.*demo\n(.*)%s\n")
+
+   if tp:match("%d+%.%d+") then
+	  return ("netPerf to " .. ipaddr .. " measured at " .. raw .. "k")
    else
-	  print(Please supply an ip address)
+	  return ("NetPerf Error: " .. tp)
    end
 end
 
-local function netPerf(ipaddr)
-   -- Runs an netperf client aimed at the supplied IP address and returns the raw throughput @ 10^6bits/sec (kilobits per second)
-   local throughput = luci.sys.exec("netperf -v 0 -f k -H "..ipaddr)
 
-   --Need to check to make sure output is correct and if not print error
-   --if throughput ==  then
---	  return throughput
---   end
+-- test suite utilities
 
+local function append_log(data)
+   -- Simple log appender
+   testLog = io.open("/tmp/wbm06Test.log", "a")
+   testLog:write(data)
+   testLog:close()
 end
 
 function string:split(sep)
@@ -69,11 +88,24 @@ function string:split(sep)
    return fields
 end
 
-function append_log(data)
-   testLog = io.open("/tmp/wbm06Test.log", "a")
-   testLog:write(data)
-   testLog:close()
+-- test suite arguments
+
+local function throughput_test(ipaddr)
+   if ipaddr then
+	  print(net_perf(ipaddr))
+   else
+	  print("Please supply an ip address")
+   end
 end
+
+local function list_neighbours(proto)
+   if proto == "batadv" then
+	  print(neigh_batadv())
+   elseif proto == "olsr" then
+		 print(neigh_olsr())
+   end
+end
+
 
 local function main()
 	if argv[1] == "list" then
