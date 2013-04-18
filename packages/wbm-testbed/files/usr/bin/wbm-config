@@ -21,7 +21,7 @@ local function generate_address(p, n)
 	local ipv6_template = assert(x:get("wbm", "network", "ipv6_net"))
 
 	return ipv4_template:gsub("P", id):gsub("R1", r1):gsub("R2", r2),
-	       ipv6_template:gsub("P", id):gsub("R1", string.format("%x", r1)):gsub("R2", string.format("%x", r2))
+	       ipv6_template:gsub("P", id):gsub("R1", string.format("%02x", r1)):gsub("R2", string.format("%02x", r2))
 end
 
 local function generate_ssid()
