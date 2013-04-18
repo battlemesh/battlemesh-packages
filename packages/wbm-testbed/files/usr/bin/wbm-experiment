@@ -80,12 +80,8 @@ local function net_perf(ipaddr)
    end
 end
 
-local function restart_node(delay)
-   --sleeps the node for <delay> number of seconds and then reboots node. This function will be useful for creating a flapping node. Restarting the node seems to be the method for flappign a node that causes the least possibility of node level changes that could taint test results.
-   print("sleeping for "..delay.." seconds")
-   os.execute("sleep "..delay)
-   os.execute("reboot")
-end
+
+
 
 local function append_log(data)
    -- Simple log appender
@@ -93,6 +89,7 @@ local function append_log(data)
    testLog:write(data)
    testLog:close()
 end
+
 
 -- test suite arguments
 
@@ -112,12 +109,12 @@ local function list_neighbours(proto)
    end
 end
 
+
 local function main()
-   if argv[1] == "list" then
-	  if argv[2] == "neighbours" then list_neighbours(argv[3]) end
-   elseif argv[1] == "throughput" then throughput_test(argv[2])
-   elseif argv[1] == "restart" then restart_node(argv[2])
-   end
+	if argv[1] == "list" then
+	   if argv[2] == "neighbours" then list_neighbours(argv[3]) end
+	else if argv[1] == "throughput" then throughput_test(argv[2]) end
+	end
 end
 
 main()
