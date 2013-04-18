@@ -5,12 +5,22 @@ local uci = require "uci"
 local argv = arg
 local x = uci.cursor()
 
+-- test suite utilities
+
 local function sprintf(...)
 	return string.format(...)
 end
 
 local function printf(...)
 	print(sprintf(...))
+end
+
+function string:split(sep)
+   --Adding functionality to lua's string function to handle spliting CSV's
+   local sep, fields = sep or ":", {}
+   local pattern = string.format("([^%s]+)", sep)
+   self:gsub(pattern, function(c) fields[#fields+1] = c end)
+   return fields
 end
 
 -- Testing Functions
@@ -71,7 +81,7 @@ local function net_perf(ipaddr)
 end
 
 
--- test suite utilities
+
 
 local function append_log(data)
    -- Simple log appender
@@ -80,13 +90,6 @@ local function append_log(data)
    testLog:close()
 end
 
-function string:split(sep)
-   --Adding functionality to lua's string function to handle spliting CSV's
-   local sep, fields = sep or ":", {}
-   local pattern = string.format("([^%s]+)", sep)
-   self:gsub(pattern, function(c) fields[#fields+1] = c end)
-   return fields
-end
 
 -- test suite arguments
 
