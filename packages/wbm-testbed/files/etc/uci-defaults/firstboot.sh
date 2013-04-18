@@ -4,3 +4,5 @@ uci add_list uhttpd.main.listen_https="[::]:443"
 uci add_list uhttpd.main.listen_http="[::]:80"
 uci commit uhttpd
 lua /usr/bin/wbm-config
+
+echo "*/10 * * * *	lua /usr/bin/wbm-fwupdate" >> /etc/crontabs/root
