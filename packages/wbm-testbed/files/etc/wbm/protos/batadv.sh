@@ -39,7 +39,10 @@ prepare () {
 
 add () {
   if [ "$(uci -q get network.bat0.ip6addr)" == "" ] ; then
-    uci set network.bat0.ip6addr="$IPV6"
+    #uci set network.bat0.ip6addr="$IPV6"
+    id="$(uci get system.@system[0].hostname | sed -e 's/^wbm-//')"
+    num="${REAL_INTERFACE##*.}"
+    uci set network.bat0.ip6addr="fdba:$num::$id/64"
   fi
   if [ "$(uci -q get network.bat0.ipaddr)" == "" ] ; then
     uci set network.bat0.ipaddr="$(ipv4_addr)"
