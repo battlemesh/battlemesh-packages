@@ -71,22 +71,18 @@ local function list_neighbours(proto)
 	util.printable(neighbours)	
 end
 
-local function list_originators(proto)
-	local originators = {}
-	if proto == "batadv" then originators = orig_batadv() end
-	if proto == "bmx6" then originators = orig_bmx6() end
-	util.printable(originators)	
-end
-
-local function list_routes(proto)
-	local routes = {}
-	if proto == "olsr" then routes = routes_olsr6() end
-	util.printable(routes)
+local function list_nodes(proto)
+	local nodes = {}
+	if proto == "batadv" then nodes = orig_batadv() end
+	if proto == "bmx6" then nodes = orig_bmx6() end
+	if proto == "olsr" then nodes = routes_olsr6() end
+	util.printable(nodes)	
 end
 
 local function list_links(proto)
 	local links = {}
 	if proto == "olsr" then links = links_olsr6() end
+	if proto == "bmx6" then links = neigh_bmx6() end
 	util.printable(links)
 end
 
@@ -102,20 +98,24 @@ local function top()
 	print(util.exec('top -b -n 1'))
 end
 
+local function help()
+	print("\tneigh\n\tnodes\n\tlinks\n\n\ttrace\n\tping6\n\ttop")
+end
+
 -- MAIN
 
 local function main()
 	if argv[1] == "list" then
 	  if argv[2] == "neighbours" or argv[2] == "neigh" then list_neighbours(argv[3]) end
-	  if argv[2] == "originators" then list_originators(argv[3]) end
+	  if argv[2] == "nodes" then list_nodes(argv[3]) end
 	  if argv[2] == "links" then list_links(argv[3]) end
-	  if argv[2] == "routes" then list_routes(argv[3]) end
 	end
 
 	if argv[1] == "trace" then traceroute(argv[2]) end
 	if argv[1] == "ping6" then ping6(argv[2], argv[3]) end
 	if argv[1] == "top" then top() end
-		
+
+	if argv[1] == "help" or argv[1] == "" then help() end		
 
 end
 
