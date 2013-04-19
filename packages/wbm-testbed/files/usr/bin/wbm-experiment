@@ -6,6 +6,12 @@ local util = require "util"
 local argv = arg
 local x = uci.cursor()
 
+
+
+-- LIST FUNCTIONS 
+--  the rule is: return an array of strings containing in the first 
+--  column the IP address and whatever or nothing after that
+
 local function neigh_batadv()
 	local c = io.popen("batctl o")
 	local s = assert(x:get("wbm", "wireless", "ssid"))
@@ -32,13 +38,13 @@ end
 
 function orig_bmx6()
 	local nodes = util.lines(
-		util.exec('bmx6 -c --originators | awk \'{print  $3}\' | grep -e ".*:.*:"'))
+		util.exec('bmx6 -c --originators | awk \'{print  $3,$1,$7}\''))
 	return nodes
 end
 
 function neigh_bmx6()
 	local nodes = util.lines(util.exec(
-		'bmx6 -c --links | awk \'{print $2}\' |  grep -e ".*:.*:"'))
+		'bmx6 -c --links | awk \'{print $2,$1,$3,$7}\''))
 	return nodes
 end
 
@@ -60,9 +66,8 @@ function routes_olsr6()
 	return routes
 end
 
+-- List the neighbours (1 hop) nodes
 
--- EXPERIMENTS
- 
 local function list_neighbours(proto)
 	local neighbours = {}
 	if proto == "batadv" then neighbours = neigh_batadv() end
@@ -70,6 +75,8 @@ local function list_neighbours(proto)
 	if proto == "olsr" then neighbours = neigh_olsr6() end
 	util.printable(neighbours)	
 end
+
+-- List the complete list of nodes
 
 local function list_nodes(proto)
 	local nodes = {}
@@ -79,11 +86,36 @@ local function list_nodes(proto)
 	util.printable(nodes)	
 end
 
+-- List the links (1 hop) nodes (for most protocols same as neighbours
+
 local function list_links(proto)
 	local links = {}
 	if proto == "olsr" then links = links_olsr6() end
 	if proto == "bmx6" then links = neigh_bmx6() end
 	util.printable(links)
+end
+
+-- EXPERIMENTS
+
+local function net_perf(ipaddr)
+	-- Runs an netperf client aimed at the supplied IP address and returns the raw throughput @ kilobits per second
+	local throughput = io.popen("netperf -v 0 -f k -H "..ipaddr)
+	tp = throughput:read("*a")
+	raw = tp:match("^MIGRATED.*demo\n(.*)%s\n")
+
+	if tp:match("%d+%.%d+") then
+		return ("netPerf to " .. ipaddr .. " measured at " .. raw .. "k")
+	else
+		return ("NetPerf Error: " .. tp)
+	end
+end
+
+local function throughput_test(ipaddr)
+	if ipaddr then
+	   print(net_perf(ipaddr))
+	else
+	   print("Please supply an ip address")
+	end
 end
 
 local function traceroute(dest)
@@ -99,13 +131,13 @@ local function top()
 end
 
 local function help()
-	print("\tneigh\n\tnodes\n\tlinks\n\n\ttrace\n\tping6\n\ttop")
+	print("list\n\tneigh\n\tnodes\n\tlinks\n\ntrace\nping6\ntop\nbw")
 end
 
 -- MAIN
 
 local function main()
-	if argv[1] == "list" then
+	if argv[1] == "list" or argv[1] == "l" then
 	  if argv[2] == "neighbours" or argv[2] == "neigh" then list_neighbours(argv[3]) end
 	  if argv[2] == "nodes" then list_nodes(argv[3]) end
 	  if argv[2] == "links" then list_links(argv[3]) end
@@ -114,8 +146,9 @@ local function main()
 	if argv[1] == "trace" then traceroute(argv[2]) end
 	if argv[1] == "ping6" then ping6(argv[2], argv[3]) end
 	if argv[1] == "top" then top() end
+	if argv[1] == "bw" then throughput_test(argv[2]) end
 
-	if argv[1] == "help" or argv[1] == "" then help() end		
+	if argv[1] == nil or argv[1] == "help" then help() end		
 
 end
 
