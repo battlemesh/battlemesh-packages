@@ -30,6 +30,9 @@ prepare () {
 
   # Some tunning for the WBM scenario
   uci set bmx6.general.dbgMuteTimeout=1000000
+# uci set bmx6.general.purgeTimeout=70000
+# uci set bmx6.general.linkPurgeTimeout=20000
+# uci set bmx6.general.dadTimeout=15000
 
   # Enable bmx6 uci config plugin
   uci set bmx6.config=plugin
@@ -38,6 +41,12 @@ prepare () {
   # Enable de JSON plugin to get bmx6 information in json format
   uci set bmx6.json=plugin
   uci set bmx6.json.plugin=bmx6_json.so
+
+  # Disable ThrowRules because they are broken in IPv6 with current Linux Kernel
+  uci set bmx6.ipVersion=ipVersion
+  uci set bmx6.ipVersion.ipVersion=6
+  uci set bmx6.ipVersion.throwRules=0
+
 
   # Smart gateway search for IPV4
 
@@ -55,7 +64,8 @@ prepare () {
   #uci set bmx6.inet.minPrefixLen=0
   #uci set bmx6.inet.maxPrefixLen=0
 
-  # Smart gateway search for IPV6
+
+# Smart gateway search for IPV6
   
   # Search for any IPv6 announcement in the mesh cloud
   #uci set bmx6.ipv6=tunOut
