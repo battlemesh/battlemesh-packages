@@ -31,7 +31,8 @@ local function exit(n)
 end
 
 if not filename or filename == "auto" then
-	local board_name = assert(file("/tmp/sysinfo/board_name"))
+	local board_name = assert(file("/tmp/sysinfo/model"))
+	      board_name = string.lower(board_name:match("^%S+ (%S+)"))
 
 	local ln
 	local dl = wget(mirror.."/META")
