@@ -3,6 +3,8 @@
 local crc = require "crc16"
 local uci = require "uci"
 local util = require "util"
+local iw = require "iwinfo"
+local bit = require "BinDecHex"
 local argv = arg
 local x = uci.cursor()
 
@@ -54,6 +56,39 @@ function neigh_olsr6()
 	return nodes
 end
 
+function mac2ipv6(mac)
+
+	-- split up mac into digits
+	local bytes = util.split(mac, ":")
+	-- prepend link-local prefix fe80::
+	local ipv6 = "fe80::"
+	-- xor leftmost w/ 0x02
+	ipv6 = ipv6 .. bit.BMXOr(bytes[1], "02") .. ":"
+	-- reformat to IPv6 notation
+	ipv6 = ipv6 .. bytes[2] .. ":" .. bytes[3]
+	-- throw ff:fe in the middle
+	ipv6 = ipv6 .. "ff:fe" .. bytes[4] .. ":" .. bytes[5] .. bytes[6]
+
+	return ipv6
+end
+
+function neigh_o11s()
+	local neighbours = { }
+
+	x:foreach("wireless", "wifi-iface", function(s)
+		local meshif = assert(x:get("wireless", s[".name"], "ifname"))
+		local stas = util.lines(util.exec(
+			'iw ' .. meshif .. ' station dump | grep Station | cut -f2 -d" "'))
+		for i=1, #stas do
+			if stas[i]:len() < 17 then break end
+			-- XXX: check for ESTAB
+			neighbours[#neighbours+1] = mac2ipv6(stas[i])
+		end
+	end)
+
+	return neighbours
+end
+
 function links_olsr6()
 	local links = util.lines(util.exec(
 		'wget http://[::1]:2006/links -O - 2>/dev/null'))
@@ -73,6 +108,7 @@ local function list_neighbours(proto)
 	if proto == "batadv" then neighbours = neigh_batadv() end
 	if proto == "bmx6" then neighbours = neigh_bmx6() end
 	if proto == "olsr" then neighbours = neigh_olsr6() end
+	if proto == "o11s" then neighbours = neigh_o11s() end
 	util.printable(neighbours)	
 end
 
