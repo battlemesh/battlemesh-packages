@@ -154,7 +154,7 @@ function main()
 		x:set("wireless", id, "device", s[".name"])
 		x:set("wireless", id, "network", net)
 		x:set("wireless", id, "ifname", ifn)
-		x:set("wireless", id, "mcast_rate", '54000')
+		x:set("wireless", id, "mcast_rate", '24000')
 		x:set("wireless", id, "macaddr", mac)
 
 		x:set("network", net, "interface")
