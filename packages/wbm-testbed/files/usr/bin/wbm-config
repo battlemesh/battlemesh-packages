@@ -19,9 +19,13 @@ local function generate_address(p, n)
 	local r1, r2 = node_id()
 	local ipv4_template = assert(x:get("wbm", "network", "ipv4_net"))
 	local ipv6_template = assert(x:get("wbm", "network", "ipv6_net"))
+	local mac_template  = assert(x:get("wbm", "network", "mac_net"))
+
+	local function hex(x) return string.format("%02x", x) end
 
 	return ipv4_template:gsub("P", id):gsub("R1", r1):gsub("R2", r2),
-	       ipv6_template:gsub("P", id):gsub("R1", string.format("%02x", r1)):gsub("R2", string.format("%02x", r2))
+	       ipv6_template:gsub("P", id):gsub("R1", hex(r1)):gsub("R2", hex(r2)), -- XXX: id should be hex coded but for backwards compat keep it decimal
+	       mac_template:gsub("P", hex(id)):gsub("R1", hex(r1)):gsub("R2", hex(r2))
 end
 
 local function generate_ssid()
@@ -136,6 +140,8 @@ function main()
 			end
 		end
 
+		local _, _, mac = generate_address(0, wifi_num)
+
 		x:set("wireless", s[".name"], "disabled", 0)
 		x:set("wireless", id, "wifi-iface")
 		x:set("wireless", id, "device", s[".name"])
@@ -145,6 +151,7 @@ function main()
 		x:set("wireless", id, "bssid", assert(x:get("wbm", "wireless", "bssid")))
 		x:set("wireless", id, "ifname", ifn)
 		x:set("wireless", id, "mcast_rate", '54000')
+		x:set("wireless", id, "macaddr", mac)
 
 		x:set("network", net, "interface")
 		x:set("network", net, "proto", "none")

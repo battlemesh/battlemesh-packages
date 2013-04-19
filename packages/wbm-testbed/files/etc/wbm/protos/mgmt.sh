@@ -32,6 +32,10 @@ prepare () {
   uci set network.mgmt_v6.ifname="@mgmt"
   uci set network.mgmt_v6.proto=dhcpv6
   uci set network.mgmt_v6.reqprefix=no
+
+  id="$(uci get system.@system[0].hostname | sed -e 's/wbm-\(..\)\(..\)/\1:\2/')"
+  uci set network.mgmt.macaddr="02:ba:fe:$id:01"
+
   uci commit network
 
   uci add firewall zone

@@ -30,14 +30,14 @@ prepare () {
   uci set network.bat0.ipaddr=""
   uci set network.bat0.netmask=""
   uci set network.bat0.mtu=1500
+
+  id="$(uci get system.@system[0].hostname | sed -e 's/wbm-\(..\)\(..\)/\1:\2/')"
+  uci set network.bat0.macaddr="02:ba:ff:$id:01"
+
   uci commit network
 }
 
 add () {
-  if [ "$(uci -q get network.bat0.macaddr)" == "" ] ; then
-    id="$(uci get system.@system[0].hostname | sed -e 's/wbm-\(..\)\(..\)/\1:\2/')"
-    uci set network.bat0.macaddr="02:ba:$id:00:01"
-  fi
   if [ "$(uci -q get network.bat0.ip6addr)" == "" ] ; then
     uci set network.bat0.ip6addr="$IPV6"
   fi

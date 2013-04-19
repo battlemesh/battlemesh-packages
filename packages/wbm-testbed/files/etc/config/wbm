@@ -18,6 +18,7 @@ config wbm network
 	# R2 = 8 bits random number, probably comming from MAC
 	option ipv4_net 10.P.R1.R2/16
 	option ipv6_net fdba:P:R1R2::1/64
+	option mac_net 02:ba:P:R1:R2:01
 
 config wbm wireless
 	option ssid WBMv6
