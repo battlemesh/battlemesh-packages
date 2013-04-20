@@ -92,6 +92,32 @@ function neigh_o11s()
 	return neighbours
 end
 
+function nodes_o11s()
+	-- o11s has no knowledge of the entire 11s mesh, so ping the ipv6 mcast
+	-- address and dump the mpath destinations, then translate those back
+	-- to the wbm ip, bleh
+	local nodes = { }
+	local o11sifs = x:get("wbm", "network", "o11s_ifs") or ""
+
+	x:foreach("wireless", "wifi-iface", function(s)
+		local iface = assert(x:get("wireless", s[".name"], "ifname"))
+		local meshif = string.find(o11sifs, iface) and iface
+		if not meshif then return end
+		-- generate mpaths
+		util.exec('ping6 -L -c2 ff02::1%' .. meshif)
+		local dsts = util.lines(util.exec(
+			'iw ' .. iface .. ' mpath dump | awk \'{if (NR!=1) {print}}\' | cut -f1 -d" "'))
+
+		for n=1, #dsts do
+			-- last line is empty
+			if dsts[n]:len() < 17 then break end
+			nodes[n] = mac2ipv6(dsts[n])
+		end
+	end)
+
+	return nodes
+end
+
 function links_olsr6()
 	local links = util.lines(util.exec(
 		'wget http://[::1]:2006/links -O - 2>/dev/null'))
@@ -122,6 +148,7 @@ local function list_nodes(proto)
 	if proto == "batadv" then nodes = orig_batadv() end
 	if proto == "bmx6" then nodes = orig_bmx6() end
 	if proto == "olsr" then nodes = routes_olsr6() end
+	if proto == "o11s" then nodes = nodes_o11s() end
 	util.printable(nodes)	
 end
 
