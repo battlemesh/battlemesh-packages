@@ -12,9 +12,6 @@ config wbm network
 	list protos babel
 	list protos mgmt
 
-	# enable o11s and disable all other protocols on these wifi interfaces
-	list o11s_ifs ""
-
 	# ipv4_net and ipv6_net are the networks that each node will use for its own.
 	# P = protocol identifier (0,1,2...) + 10 for interface
 	# R1 = 8 bits random number, probably comming from MAC
