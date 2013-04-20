@@ -74,11 +74,14 @@ end
 
 function neigh_o11s()
 	local neighbours = { }
+	local o11sifs = x:get("wbm", "network", "o11s_ifs") or ""
 
 	x:foreach("wireless", "wifi-iface", function(s)
-		local meshif = assert(x:get("wireless", s[".name"], "ifname"))
+		local iface = assert(x:get("wireless", s[".name"], "ifname"))
+		local meshif = string.find(o11sifs, iface)
+		if not meshif then return end
 		local stas = util.lines(util.exec(
-			'iw ' .. meshif .. ' station dump | grep Station | cut -f2 -d" "'))
+			'iw ' .. iface .. ' station dump | grep Station | cut -f2 -d" "'))
 		for i=1, #stas do
 			if stas[i]:len() < 17 then break end
 			-- XXX: check for ESTAB
