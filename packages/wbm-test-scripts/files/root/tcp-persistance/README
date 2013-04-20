@@ -1,0 +1,12 @@
+## WBMv6 p4u & Jow
+## it requires lua nixio from luci-subsignal
+##
+## This is a test to test the TCP persistence of a mobile node
+##
+## The server.lua runs in the mobile node and client.lua in the static node
+##
+## Client is trying to establish a TCP connection to the server. 
+## The server's timeout is 2 seconds, so once the path between both nodes
+## is lost for more than 2 seconds the socket is closed and the client increase
+## the counter variable which counts the number of fails. 
+## At the end of the test, the client shows the total number of fails. As less as better.
