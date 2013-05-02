@@ -18,7 +18,8 @@
 #    the file called "COPYING".
 #
 # Contributors:
-#	Pau Escrich <p4u@dabax.net>, Jo-Philipp <jow@openwrt.org>, Guido Ibarren <guido@codigosur.org>
+#	Pau Escrich <p4u@dabax.net>, Jo-Philipp <jow@openwrt.org>
+#	Guido Ibarren <guido@codigosur.org>, Claudio Pisa <clauz@ninux.org>
 #
 
 include $(TOPDIR)/rules.mk
@@ -59,6 +60,7 @@ endef
 define Package/wbm-test-scripts/install
 	chmod 755 ./files/root/*.sh 
 	$(CP) ./files/* $(1)/
+	$(INSTALL_DIR) $(1)/etc
 	date -u +%Y%m%d%H%M > $(1)/etc/wbm-test-scripts.version
 	git log -1 --format=%h > $(1)/etc/wbm-test-scripts.release
 endef
