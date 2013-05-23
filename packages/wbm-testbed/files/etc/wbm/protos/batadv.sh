@@ -5,6 +5,8 @@ LOGICAL_INTERFACE=$2
 REAL_INTERFACE=$3
 IPV4=$4
 IPV6=$5
+R1=$6
+R2=$7
 
 ipv4_addr () {
   echo ${IPV4%%/*}
@@ -30,18 +32,15 @@ prepare () {
   uci set network.bat0.ipaddr=""
   uci set network.bat0.netmask=""
   uci set network.bat0.mtu=1500
-
-  id="$(uci get system.@system[0].hostname | sed -e 's/wbm-\(..\)\(..\)/\1:\2/')"
-  uci set network.bat0.macaddr="02:ba:ff:$id:01"
-
   uci commit network
 }
 
 add () {
+  if [ "$(uci -q get network.bat0.macaddr)" == "" ] ; then
+    uci set network.bat0.macaddr="$(printf '02:ba:ff:%02x:%02x:01' $R1 $R2)"
+  fi
   if [ "$(uci -q get network.bat0.ip6addr)" == "" ] ; then
-    id="$(uci get system.@system[0].hostname | sed -e 's/^wbm-//')"
-    num="${REAL_INTERFACE##*.}"
-    uci set network.bat0.ip6addr="fdbb::$id/64"
+    uci set network.bat0.ip6addr="$(printf 'fdbb::%02x%02x/64' $R1 $R2)"
   fi
   if [ "$(uci -q get network.bat0.ipaddr)" == "" ] ; then
     uci set network.bat0.ipaddr="$(ipv4_addr)"

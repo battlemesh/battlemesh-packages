@@ -5,6 +5,8 @@ LOGICAL_INTERFACE=$2
 REAL_INTERFACE=$3
 IPV4=$4
 IPV6=$5
+R1=$6
+R2=$7
 
 clean () {
   true  
@@ -32,10 +34,6 @@ prepare () {
   uci set network.mgmt_v6.ifname="@mgmt"
   uci set network.mgmt_v6.proto=dhcpv6
   uci set network.mgmt_v6.reqprefix=no
-
-  id="$(uci get system.@system[0].hostname | sed -e 's/wbm-\(..\)\(..\)/\1:\2/')"
-  uci set network.mgmt.macaddr="02:ba:fe:$id:01"
-
   uci commit network
 
   uci add firewall zone
@@ -54,6 +52,10 @@ prepare () {
 }
 
 add () {
+  if [ "$(uci -q get network.mgmt.macaddr)" == "" ]; then
+    uci set network.mgmt.macaddr="$(printf '02:ba:fe:%02x:%02x:01' $R1 $R2)"
+  fi
+
   uci set network.${LOGICAL_INTERFACE}=interface
   uci set network.${LOGICAL_INTERFACE}.proto=batadv
   uci set network.${LOGICAL_INTERFACE}.mesh=bat1

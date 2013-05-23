@@ -56,6 +56,7 @@ function main()
 	local protocols = assert(x:get("wbm", "network", "protos"))
 	local vlan_base = assert(x:get("wbm", "network", "vlan_tag_start"))
 	local o11s_ifs = x:get("wbm", "network", "o11s_ifs") or ""
+	local r1, r2 = node_id()
 	local batch = { }
 
 
@@ -89,8 +90,8 @@ function main()
 		x:set("network", net, "ipaddr", v4)
 		x:set("network", net, "ip6addr", v6)
 
-		local cmd = string.format("sh /etc/wbm/protos/%s.sh add %s %s %s %s",
-			protocols[n], net, ifn, v4, v6)
+		local cmd = string.format("sh /etc/wbm/protos/%s.sh add %s %s %s %s %d %d",
+			protocols[n], net, ifn, v4, v6, r1, r2)
 
 		batch[#batch+1] = cmd
 	end
