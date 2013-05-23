@@ -114,6 +114,7 @@ function main()
 	print("Defining wireless networks...")
 	local channel2 = assert(x:get("wbm", "wireless", "channel_2ghz"))
 	local channel5 = assert(x:get("wbm", "wireless", "channel_5ghz"))
+	local mcast_rate = assert(x:get("wbm", "wireless", "mcast_rate"))
 	local wifi_num = 1
 
 	x:foreach("wireless", "wifi-device", function(s)
@@ -152,7 +153,7 @@ function main()
 		x:set("wireless", id, "device", s[".name"])
 		x:set("wireless", id, "network", net)
 		x:set("wireless", id, "ifname", ifn)
-		x:set("wireless", id, "mcast_rate", '24000')
+		x:set("wireless", id, "mcast_rate", mcast_rate)
 		x:set("wireless", id, "macaddr", mac)
 
 		x:set("network", net, "interface")
