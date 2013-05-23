@@ -38,9 +38,9 @@ define Package/wbm-testbed
   DEPENDS:= \
 	+iwinfo +lua +libiwinfo-lua +libuci-lua +luci-lib-nixio \
 	+iputils-arping +iputils-clockdiff +iputils-ping +iputils-tracepath \
-	+wpad-mini +dnsmasq-dhcpv6 \
-	+iw +netperf +mtr +iftop +tcpdump-mini \
-	+ip +ndisc6 +rdisc6
+	+dnsmasq-dhcpv6 \
+	+iw +mtr  \
+	+ip 
 endef
 
 define Package/wbm-testbed/description
