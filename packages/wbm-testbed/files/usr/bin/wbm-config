@@ -81,7 +81,7 @@ function main()
 	local n
 	for n = 1, #protocols do
 		local net = "lan_" .. protocols[n]
-		local ifn = string.format("eth0.%d", vlan_base + n - 1)
+		local ifn = string.format("@lan.%d", vlan_base + n - 1)
 		local v4, v6 = generate_address(n, 0)
 
 		x:set("network", net, "interface")
