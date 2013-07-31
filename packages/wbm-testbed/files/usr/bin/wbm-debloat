@@ -17,8 +17,9 @@ QDISC=fq_codel # There are multiple variants of fq_codel in testing
 FQ_LIMIT="" # the default 10000 packet limit mucks with slow start at speeds
             # at 1Gbit and below. Somewhat arbitrary figures selected.
 
-[ -z "$IFACE" ] && echo error: $0 expects IFACE parameter in environment && exit 1
-[ -z `which ethtool` ] && echo error: ethtool is required && exit 1
+[ -z "$1" ] && echo error: $0 expects IFACE parameter in environment && exit 1
+IFACE=$1;
+# #20 [ -z `which ethtool` ] && echo error: ethtool is required && exit 1
 [ -z `which tc` ] && echo error: tc is required && exit 1
 # FIXME see if $QDISC is available. modprobe?
 
@@ -125,4 +126,4 @@ tc qdisc del dev $IFACE root 2> /dev/null
 fix_speed
 fix_queues
 
-exit 0
+#exit 0
