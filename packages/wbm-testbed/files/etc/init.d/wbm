@@ -25,9 +25,9 @@ start() {
 	ulimit -c 20000
 	[ -e "/etc/rc.d/S50netserver" ] && { /etc/init.d/netserver stop; /etc/init.d/netserver disable; }
 	netserver -6 -p 12865
-	IFACE=wbm1 wbm-debloat 
-	IFACE=wbm2 wbm-debloat 
-	IFACE=wbm3 wbm-debloat 
+	wbm-debloat wbm1
+	wbm-debloat wbm2
+	wbm-debloat wbm3
 }
 
 stop() {
