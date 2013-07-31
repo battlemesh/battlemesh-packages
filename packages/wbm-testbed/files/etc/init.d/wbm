@@ -28,6 +28,7 @@ start() {
 	wbm-debloat wbm1
 	wbm-debloat wbm2
 	wbm-debloat wbm3
+	wbm-debloat usbwlan0
 }
 
 stop() {
