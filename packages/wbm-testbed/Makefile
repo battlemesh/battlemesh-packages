@@ -66,6 +66,7 @@ define Package/wbm-testbed/install
 	date -u +%Y%m%d%H%M > $(1)/etc/wbm.version
 	chmod 755 $(1)/etc/init.d/wbm
 	chmod 755 $(1)/usr/bin/wbm-config
+	chmod 755 $(1)/usr/bin/wbm-debloat
 	chmod 755 $(1)/etc/wbm/protos/*.sh
 	git log -1 --format=%h > $(1)/etc/wbm.release
 endef
