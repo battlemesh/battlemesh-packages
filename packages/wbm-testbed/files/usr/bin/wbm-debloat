@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # debloat.sh -  improves network latency by reducing excessive buffering
 #		and offloads on common devices and enabling fq_codel.
 # Copyright 2012 M D Taht. Released into the public domain.
