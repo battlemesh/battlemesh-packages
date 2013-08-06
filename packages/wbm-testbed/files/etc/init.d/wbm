@@ -29,6 +29,7 @@ start() {
 	wbm-debloat wbm2
 	wbm-debloat wbm3
 	wbm-debloat usbwlan0
+	wbm-debloat accesspoint
 }
 
 stop() {
