@@ -11,6 +11,8 @@ config wbm network
 	list protos batadv
 	list protos babel
 	list protos mgmt
+	list protos test1
+	list protos test2
 
 	# enable o11s and disable all other protocols on these wifi interfaces
 	option o11s_ifs ""
