@@ -68,6 +68,7 @@ define Package/wbm-testbed/install
 	chmod 755 $(1)/usr/bin/wbm-config
 	chmod 755 $(1)/usr/bin/wbm-debloat
 	chmod 755 $(1)/etc/wbm/protos/*.sh
+	chmod 700 $(1)/etc/dropbear/authorized_keys
 	git log -1 --format=%h > $(1)/etc/wbm.release
 endef
 
