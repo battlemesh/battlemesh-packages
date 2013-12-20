@@ -31,4 +31,4 @@ config wbm wireless
 	option mcast_rate 6000
 	list channel_2ghz 1
 	list channel_2ghz 6
-	list channel_5ghz 36+
+	list channel_5ghz 40+
