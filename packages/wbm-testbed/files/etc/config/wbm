@@ -3,7 +3,7 @@ config wbm network
 	option primary_dev eth0
 
 	# first vlan tag for first protocol
-	option vlan_tag_start 31
+	option vlan_tag_start 10
 
 	# protocols available
 	list protos olsr
